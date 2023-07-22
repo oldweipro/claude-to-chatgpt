@@ -13,8 +13,6 @@ func OpenaiToClaudeParams(chatCompletionRequest model.ChatCompletionRequest) *mo
 	if err != nil {
 		fmt.Println("Marshal err:", err)
 	}
-	//len := len(completionMessages)
-	// 如果message只有一个的话，可以直接message
-	//message := completionMessages[len-1]
-	return model.NewChatMessageRequest(string(marshal))
+	content := string(marshal)
+	return model.NewChatMessageRequest(content)
 }
