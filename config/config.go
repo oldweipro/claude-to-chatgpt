@@ -1,6 +1,6 @@
-package core
+package config
 
-type Config struct {
+type ServerConfig struct {
 	Claude Claude `mapstructure:"claude" json:"claude" yaml:"claude"`
 	Proxy  Proxy  `mapstructure:"proxy" json:"proxy" yaml:"proxy"`
 }

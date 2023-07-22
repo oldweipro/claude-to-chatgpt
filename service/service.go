@@ -9,7 +9,7 @@ import (
 	"github.com/bogdanfinn/tls-client"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/oldweipro/claude-to-chatgpt/core"
+	"github.com/oldweipro/claude-to-chatgpt/global"
 	"github.com/oldweipro/claude-to-chatgpt/model"
 	"io"
 	"time"
@@ -30,14 +30,14 @@ var (
 )
 
 func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, sessionKey, proxy string, stream bool) {
-	appendMessageApi := core.ServerConfig.Claude.BaseUrl + "/api/append_message"
+	appendMessageApi := global.ServerConfig.Claude.BaseUrl + "/api/append_message"
 	client.SetProxy("http://127.0.0.1:7890")
 	// 设置两个参数
 	newStringUuid := uuid.NewString()
 	// TODO 判断是否出错
 	CreateChatConversations(newStringUuid)
 	params.ConversationUuid = newStringUuid
-	params.OrganizationUuid = core.ServerConfig.Claude.OrganizationUuid
+	params.OrganizationUuid = global.ServerConfig.Claude.OrganizationUuid
 	// 发起请求
 	marshal, err := json.Marshal(params)
 	if err != nil {
@@ -114,7 +114,7 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 }
 
 func CreateChatConversations(newStringUuid string) {
-	chatConversationsApi := core.ServerConfig.Claude.BaseUrl + "/api/organizations/" + core.ServerConfig.Claude.OrganizationUuid + "/chat_conversations"
+	chatConversationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations/" + global.ServerConfig.Claude.OrganizationUuid + "/chat_conversations"
 	client.SetProxy("http://127.0.0.1:7890")
 	conversation := model.NewChatConversationRequest(newStringUuid, "")
 	marshal, err := json.Marshal(conversation)
@@ -146,7 +146,7 @@ func CreateChatConversations(newStringUuid string) {
 
 func DeleteChatConversations(newStringUuid string) {
 	client.SetProxy("http://127.0.0.1:7890")
-	chatConversationsApi := core.ServerConfig.Claude.BaseUrl + "/api/organizations/" + core.ServerConfig.Claude.OrganizationUuid + "/chat_conversations/"
+	chatConversationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations/" + global.ServerConfig.Claude.OrganizationUuid + "/chat_conversations/"
 	request, err := http2.NewRequest(http2.MethodDelete, chatConversationsApi+newStringUuid, nil)
 	if err != nil {
 		fmt.Println(err)
@@ -171,7 +171,7 @@ func DeleteChatConversations(newStringUuid string) {
 
 func GetOrganizations() ([]model.OrganizationsResponse, error) {
 	client.SetProxy("http://127.0.0.1:7890")
-	organizationsApi := core.ServerConfig.Claude.BaseUrl + "/api/organizations"
+	organizationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations"
 	request, err := http2.NewRequest(http2.MethodGet, organizationsApi, nil)
 
 	if err != nil {
@@ -191,7 +191,6 @@ func GetOrganizations() ([]model.OrganizationsResponse, error) {
 		fmt.Println(err)
 		return nil, err
 	}
-	fmt.Println(string(body))
 	var response []model.OrganizationsResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -202,7 +201,7 @@ func GetOrganizations() ([]model.OrganizationsResponse, error) {
 }
 
 func SetHeaders(r *http2.Request) {
-	r.Header.Add("Cookie", core.ServerConfig.Claude.SessionKey)
+	r.Header.Add("Cookie", global.ServerConfig.Claude.SessionKey)
 	r.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
 	r.Header.Add("Content-Type", "application/json")
 	r.Header.Add("Accept", "*/*")
