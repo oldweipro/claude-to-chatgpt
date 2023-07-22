@@ -59,10 +59,9 @@ type ChatCompletionStreamResponse struct {
 	PromptAnnotations []PromptAnnotation           `json:"prompt_annotations,omitempty"`
 }
 type ChatCompletionStreamChoice struct {
-	Index                int                             `json:"index"`
-	Delta                ChatCompletionStreamChoiceDelta `json:"delta"`
-	FinishReason         interface{}                     `json:"finish_reason"`
-	ContentFilterResults ContentFilterResults            `json:"content_filter_results,omitempty"`
+	Index        int                             `json:"index"`
+	Delta        ChatCompletionStreamChoiceDelta `json:"delta"`
+	FinishReason interface{}                     `json:"finish_reason"`
 }
 
 type ChatCompletionStreamChoiceDelta struct {
