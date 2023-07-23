@@ -5,5 +5,5 @@ TODO List
 
 - ~~更灵活的代理配置~~
 - ~~检查创建聊天和删除聊天产生错误~~
-- 处理stream为false
+- ~~处理stream为false~~
 - 快速开始 部署文档

@@ -34,13 +34,14 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 	appendMessageApi := global.ServerConfig.Claude.BaseUrl + "/api/append_message"
 	err := client.SetProxy(global.HttpProxy)
 	if err != nil {
+		HandleErrorResponse(c, err.Error())
 		return
 	}
 	// 设置两个参数
 	newStringUuid := uuid.NewString()
-	// TODO 判断是否出错
 	_, err = CreateChatConversations(newStringUuid)
 	if err != nil {
+		HandleErrorResponse(c, err.Error())
 		return
 	}
 	params.ConversationUuid = newStringUuid
@@ -48,11 +49,12 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 	// 发起请求
 	marshal, err := json.Marshal(params)
 	if err != nil {
-		fmt.Println("Marshal err:", err)
+		HandleErrorResponse(c, err.Error())
+		return
 	}
 	request, err := http2.NewRequest(http2.MethodPost, appendMessageApi, bytes.NewBuffer(marshal))
 	if err != nil {
-		fmt.Println(err)
+		HandleErrorResponse(c, err.Error())
 		return
 	}
 	SetHeaders(request)
@@ -67,6 +69,7 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 		// Response content type is application/json
 		c.Header("Content-Type", "application/json")
 	}
+	var fullResponseText string
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -79,11 +82,12 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 			continue
 		}
 		line = line[6:]
-		if originalResponse.StopReason != "stop_sequence" {
+		if originalResponse.Stop == "" {
 			err = json.Unmarshal([]byte(line), &originalResponse)
 			if err != nil {
 				continue
 			}
+
 			completionResponse := model.ChatCompletionStreamResponse{
 				ID:      "chatcmpl-7f1DmyzTWtiysnyfSS4i187kus2Ao",
 				Object:  "chat.completion.chunk",
@@ -99,31 +103,46 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 					},
 				},
 			}
-			if originalResponse.Completion == "" {
+			if originalResponse.Stop != "" {
 				completionResponse.Choices[0].FinishReason = "stop"
 			}
 			if isRole {
 				completionResponse.Choices[0].Delta.Role = "assistant"
 			}
-			resp, _ := json.Marshal(completionResponse)
-			responseString := "data: " + string(resp) + "\n\n"
-			_, err = c.Writer.WriteString(responseString)
-			if err != nil {
-				return
+			if !isRole && originalResponse.Stop == "" {
+				fullResponseText += originalResponse.Completion
+			}
+			if stream {
+				resp, _ := json.Marshal(completionResponse)
+				responseString := "data: " + string(resp) + "\n\n"
+				_, err = c.Writer.WriteString(responseString)
+				if err != nil {
+					return
+				}
+				c.Writer.Flush()
 			}
 			isRole = false
-			c.Writer.Flush()
-		} else {
-			if stream {
-				c.Writer.WriteString("data: [DONE]\n\n")
-			}
 		}
-
+	}
+	if stream {
+		c.Writer.WriteString("data: [DONE]\n\n")
+	} else {
+		c.JSON(200, NewChatCompletion(fullResponseText))
 	}
 	err = DeleteChatConversations(newStringUuid)
 	if err != nil {
-		fmt.Println("delete err:", newStringUuid)
+		fmt.Println("delete err:", err, newStringUuid)
 	}
+}
+
+func HandleErrorResponse(c *gin.Context, err string) {
+	c.JSON(500, gin.H{"error": gin.H{
+		"message": "Unknown error",
+		"type":    "internal_server_error",
+		"param":   nil,
+		"code":    "500",
+		"details": err,
+	}})
 }
 
 func CreateChatConversations(newStringUuid string) (model.ChatConversationResponse, error) {
@@ -188,8 +207,8 @@ func DeleteChatConversations(newStringUuid string) error {
 	//	fmt.Println(err)
 	//	return err
 	//}
-	//fmt.Println("删除对话:", newStringUuid, string(body))
-	if res.StatusCode != 200 {
+	//fmt.Println("delete:", newStringUuid, string(body))
+	if res.StatusCode != 204 {
 		return errors.New("delete chat conversations err")
 	}
 	return nil
@@ -236,4 +255,28 @@ func SetHeaders(r *http2.Request) {
 	r.Header.Add("Accept", "*/*")
 	r.Header.Add("Host", "claude.ai")
 	r.Header.Add("Connection", "keep-alive")
+}
+
+func NewChatCompletion(fullResponseText string) model.ChatCompletionResponse {
+	return model.ChatCompletionResponse{
+		ID:      "chatcmpl-QXlha2FBbmROaXhpZUFyZUF3ZXNvbWUK",
+		Object:  "chat.completion",
+		Created: time.Now().Unix(),
+		Model:   "gpt-3.5-turbo-0613",
+		Usage: model.Usage{
+			PromptTokens:     0,
+			CompletionTokens: 0,
+			TotalTokens:      0,
+		},
+		Choices: []model.ChatCompletionChoice{
+			{
+				Message: model.ChatCompletionMessage{
+					Content: fullResponseText,
+					Role:    "assistant",
+				},
+				Index:        0,
+				FinishReason: nil,
+			},
+		},
+	}
 }

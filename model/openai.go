@@ -51,12 +51,11 @@ type FunctionCall struct {
 }
 
 type ChatCompletionStreamResponse struct {
-	ID                string                       `json:"id"`
-	Object            string                       `json:"object"`
-	Created           int64                        `json:"created"`
-	Model             string                       `json:"model"`
-	Choices           []ChatCompletionStreamChoice `json:"choices"`
-	PromptAnnotations []PromptAnnotation           `json:"prompt_annotations,omitempty"`
+	ID      string                       `json:"id"`
+	Object  string                       `json:"object"`
+	Created int64                        `json:"created"`
+	Model   string                       `json:"model"`
+	Choices []ChatCompletionStreamChoice `json:"choices"`
 }
 type ChatCompletionStreamChoice struct {
 	Index        int                             `json:"index"`
@@ -70,30 +69,22 @@ type ChatCompletionStreamChoiceDelta struct {
 	FunctionCall *FunctionCall `json:"function_call,omitempty"`
 }
 
-type PromptAnnotation struct {
-	PromptIndex          int                  `json:"prompt_index,omitempty"`
-	ContentFilterResults ContentFilterResults `json:"content_filter_results,omitempty"`
+type ChatCompletionResponse struct {
+	ID      string                 `json:"id"`
+	Object  string                 `json:"object"`
+	Created int64                  `json:"created"`
+	Model   string                 `json:"model"`
+	Usage   Usage                  `json:"usage"`
+	Choices []ChatCompletionChoice `json:"choices"`
 }
 
-type ContentFilterResults struct {
-	Hate     Hate     `json:"hate,omitempty"`
-	SelfHarm SelfHarm `json:"self_harm,omitempty"`
-	Sexual   Sexual   `json:"sexual,omitempty"`
-	Violence Violence `json:"violence,omitempty"`
+type ChatCompletionChoice struct {
+	Index        int                   `json:"index"`
+	Message      ChatCompletionMessage `json:"message"`
+	FinishReason interface{}           `json:"finish_reason"`
 }
-type Hate struct {
-	Filtered bool   `json:"filtered"`
-	Severity string `json:"severity,omitempty"`
-}
-type SelfHarm struct {
-	Filtered bool   `json:"filtered"`
-	Severity string `json:"severity,omitempty"`
-}
-type Sexual struct {
-	Filtered bool   `json:"filtered"`
-	Severity string `json:"severity,omitempty"`
-}
-type Violence struct {
-	Filtered bool   `json:"filtered"`
-	Severity string `json:"severity,omitempty"`
+type Usage struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+	TotalTokens      int `json:"total_tokens"`
 }
