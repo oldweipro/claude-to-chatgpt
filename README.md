@@ -7,7 +7,7 @@
 本项目是把 [Claude](https://claude.ai) 聊天功能接口适配到 OpenAI API 标准接口。
 
 当启动本项目后,就可以按照 [v1/chat/completions](https://platform.openai.com/docs/api-reference/chat)
-的接口文档调用本项目接口 `http://127.0.0.1:8080/v1/chat/completions`
+的接口文档调用本项目接口 `http://127.0.0.1:8787/v1/chat/completions`
 得到与 [OpenAI API](https://platform.openai.com/docs/api-reference/chat)
 相同的数据结构,方便已经对 [OpenAI API](https://platform.openai.com/docs/api-reference/chat) 结果进行开发的用户快速切换。
 
@@ -53,7 +53,7 @@ go run main.go -c config-dev.yaml
 
 ## 配置
 
-配置文件如果不存在,程序会自动创建。
+配置文件如果不存在,程序会自动创建 `config.yaml`。
 
 如果启动后填写的配置信息有误,直接修改配置文件并保存即可,程序会自动重新加载。
 
