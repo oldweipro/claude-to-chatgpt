@@ -26,7 +26,7 @@ func NewChatMessageRequest(message string) *ChatMessageRequest {
 		OrganizationUuid: "",
 		ConversationUuid: "",
 		Text:             message,
-		Attachments:      nil,
+		Attachments:      []Attachments{},
 	}
 }
 
