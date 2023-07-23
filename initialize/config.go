@@ -8,6 +8,8 @@ import (
 	"github.com/oldweipro/claude-to-chatgpt/global"
 	"github.com/oldweipro/claude-to-chatgpt/service"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
+	"os"
 	"strings"
 )
 
@@ -22,10 +24,26 @@ func NewViper() {
 	if config == "" {
 		config = ConfigDefaultFile
 	}
+	// check config file
+	_, err := os.Stat(config)
+	if os.IsNotExist(err) {
+		file, err := os.Create(config)
+		// 其他处理
+		if err != nil {
+			return
+		}
+		defer file.Close()
+		encoder := yaml.NewEncoder(file)
+		encoder.SetIndent(2)
+		if err := encoder.Encode(&global.ServerConfig); err != nil {
+			panic(err)
+		}
+		fmt.Println("File created and data written successfully.")
+	}
 	v := viper.New()
 	v.SetConfigFile(config)
 	v.SetConfigType("yaml")
-	err := v.ReadInConfig()
+	err = v.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
@@ -36,6 +54,7 @@ func NewViper() {
 		if err = v.Unmarshal(&global.ServerConfig); err != nil {
 			fmt.Println(err)
 		}
+		SyncServerConfig()
 		PrintServerConfig()
 	})
 	if err = v.Unmarshal(&global.ServerConfig); err != nil {
@@ -45,19 +64,20 @@ func NewViper() {
 }
 
 func SyncServerConfig() {
-	if global.ServerConfig.Claude.SessionKey == "" {
-		fmt.Println("SessionKey cannot be empty.")
-	}
 	if global.ServerConfig.Claude.BaseUrl == "" {
 		global.ServerConfig.Claude.BaseUrl = "https://claude.ai"
-	}
-	if !strings.HasPrefix(global.ServerConfig.Claude.SessionKey, "sessionKey=") {
-		global.ServerConfig.Claude.SessionKey = "sessionKey=" + global.ServerConfig.Claude.SessionKey
 	}
 	if global.ServerConfig.Proxy.Protocol != "" || global.ServerConfig.Proxy.Host != "" || global.ServerConfig.Proxy.Port != "" {
 		global.HttpProxy = global.ServerConfig.Proxy.Protocol + "://" + global.ServerConfig.Proxy.Host + ":" + global.ServerConfig.Proxy.Port
 	}
-	if global.ServerConfig.Claude.OrganizationUuid == "" {
+	if global.ServerConfig.Claude.SessionKey == "" {
+		fmt.Println("SessionKey cannot be empty.")
+		return
+	}
+	if !strings.HasPrefix(global.ServerConfig.Claude.SessionKey, "sessionKey=") {
+		global.ServerConfig.Claude.SessionKey = "sessionKey=" + global.ServerConfig.Claude.SessionKey
+	}
+	if global.ServerConfig.Claude.OrganizationUuid == "" && global.ServerConfig.Claude.SessionKey != "" {
 		// 获取OrganizationUuid验证网络及参数是否正确
 		organizations, err := service.GetOrganizations()
 		if err != nil {
