@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/oldweipro/claude-to-chatgpt/global"
@@ -30,7 +31,7 @@ func NewViper() {
 		if err = v.Unmarshal(&global.ServerConfig); err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("%s\n", global.ServerConfig)
+		PrintServerConfig()
 	})
 	if err = v.Unmarshal(&global.ServerConfig); err != nil {
 		fmt.Println(err)
@@ -59,4 +60,9 @@ func SyncServerConfig() {
 		}
 		global.ServerConfig.Claude.OrganizationUuid = organizations[0].Uuid
 	}
+}
+
+func PrintServerConfig() {
+	indent, _ := json.MarshalIndent(global.ServerConfig, "", "    ")
+	fmt.Println(string(indent))
 }
