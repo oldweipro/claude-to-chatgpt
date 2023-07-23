@@ -4,8 +4,7 @@
 
 ## 介绍
 
-本项目是把 [Claude](https://claude.ai) 的聊天功能转换为 OpenAI 使用 API
-调用 [v1/chat/completions](https://platform.openai.com/docs/api-reference/chat) 的标准接口。
+本项目是把 [Claude](https://claude.ai) 聊天功能接口适配到 OpenAI API 标准接口。
 
 当启动本项目后,就可以按照 [v1/chat/completions](https://platform.openai.com/docs/api-reference/chat)
 的接口文档调用本项目接口 `http://127.0.0.1:8080/v1/chat/completions`
