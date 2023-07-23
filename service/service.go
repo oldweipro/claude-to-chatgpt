@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	http2 "github.com/bogdanfinn/fhttp"
 	"github.com/bogdanfinn/tls-client"
@@ -38,7 +39,10 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 	// 设置两个参数
 	newStringUuid := uuid.NewString()
 	// TODO 判断是否出错
-	CreateChatConversations(newStringUuid)
+	_, err = CreateChatConversations(newStringUuid)
+	if err != nil {
+		return
+	}
 	params.ConversationUuid = newStringUuid
 	params.OrganizationUuid = global.ServerConfig.Claude.OrganizationUuid
 	// 发起请求
@@ -116,14 +120,18 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 		}
 
 	}
-	DeleteChatConversations(newStringUuid)
+	err = DeleteChatConversations(newStringUuid)
+	if err != nil {
+		fmt.Println("delete err:", newStringUuid)
+	}
 }
 
-func CreateChatConversations(newStringUuid string) {
+func CreateChatConversations(newStringUuid string) (model.ChatConversationResponse, error) {
+	var chatConversationResponse model.ChatConversationResponse
 	chatConversationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations/" + global.ServerConfig.Claude.OrganizationUuid + "/chat_conversations"
 	err := client.SetProxy(global.HttpProxy)
 	if err != nil {
-		return
+		return chatConversationResponse, err
 	}
 	conversation := model.NewChatConversationRequest(newStringUuid, "")
 	marshal, err := json.Marshal(conversation)
@@ -133,52 +141,58 @@ func CreateChatConversations(newStringUuid string) {
 	request, err := http2.NewRequest(http2.MethodPost, chatConversationsApi, bytes.NewBuffer(marshal))
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		return chatConversationResponse, err
 	}
 	SetHeaders(request)
 
 	res, err := client.Do(request)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return chatConversationResponse, err
 	}
 	defer res.Body.Close()
 
-	//body, err := io.ReadAll(res.Body)
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-	//fmt.Println("创建对话:", newStringUuid, string(body))
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		return chatConversationResponse, err
+	}
+	err = json.Unmarshal(body, &chatConversationResponse)
+	if err != nil {
+		return chatConversationResponse, err
+	}
+	return chatConversationResponse, err
 }
 
-func DeleteChatConversations(newStringUuid string) {
+func DeleteChatConversations(newStringUuid string) error {
 	err := client.SetProxy(global.HttpProxy)
 	if err != nil {
-		return
+		return err
 	}
 	chatConversationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations/" + global.ServerConfig.Claude.OrganizationUuid + "/chat_conversations/"
 	request, err := http2.NewRequest(http2.MethodDelete, chatConversationsApi+newStringUuid, nil)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return err
 	}
 	SetHeaders(request)
 
 	res, err := client.Do(request)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return err
 	}
 	defer res.Body.Close()
-
 	//body, err := io.ReadAll(res.Body)
 	//if err != nil {
 	//	fmt.Println(err)
-	//	return
+	//	return err
 	//}
 	//fmt.Println("删除对话:", newStringUuid, string(body))
+	if res.StatusCode != 200 {
+		return errors.New("delete chat conversations err")
+	}
+	return nil
 }
 
 func GetOrganizations() ([]model.OrganizationsResponse, error) {

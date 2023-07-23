@@ -86,3 +86,12 @@ type OrganizationsResponse struct {
 type Settings struct {
 	ClaudeConsolePrivacy string `json:"claude_console_privacy"`
 }
+
+type ErrorResponse struct {
+	Error  Error  `json:"error"`
+	Detail string `json:"detail"`
+}
+type Error struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
+}
