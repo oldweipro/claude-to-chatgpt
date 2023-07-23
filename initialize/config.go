@@ -41,13 +41,15 @@ func NewViper() {
 func SyncServerConfig() {
 	if global.ServerConfig.Claude.SessionKey == "" {
 		fmt.Println("SessionKey cannot be empty.")
-		return
 	}
 	if global.ServerConfig.Claude.BaseUrl == "" {
 		global.ServerConfig.Claude.BaseUrl = "https://claude.ai"
 	}
 	if !strings.HasPrefix(global.ServerConfig.Claude.SessionKey, "sessionKey=") {
 		global.ServerConfig.Claude.SessionKey = "sessionKey=" + global.ServerConfig.Claude.SessionKey
+	}
+	if global.ServerConfig.Proxy.Protocol != "" || global.ServerConfig.Proxy.Host != "" || global.ServerConfig.Proxy.Port != "" {
+		global.HttpProxy = global.ServerConfig.Proxy.Protocol + "://" + global.ServerConfig.Proxy.Host + ":" + global.ServerConfig.Proxy.Port
 	}
 	if global.ServerConfig.Claude.OrganizationUuid == "" {
 		// 获取OrganizationUuid验证网络及参数是否正确

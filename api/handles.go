@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/oldweipro/claude-to-chatgpt/global"
 	"github.com/oldweipro/claude-to-chatgpt/model"
 	"github.com/oldweipro/claude-to-chatgpt/service"
 )
@@ -31,5 +30,5 @@ func ChatCompletionsHandler(c *gin.Context) {
 	}
 	// 流程是：接收openAI的参数，转换成claude的参数，请求claude返回结果，claude结果转openAI，返回给用户。
 	params := service.OpenaiToClaudeParams(chatCompletionRequest)
-	service.RequestClaudeToResponse(c, params, global.ServerConfig.Claude.SessionKey, "http://127.0.0.1:7890", chatCompletionRequest.Stream)
+	service.RequestClaudeToResponse(c, params, chatCompletionRequest.Stream)
 }

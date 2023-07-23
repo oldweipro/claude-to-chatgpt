@@ -29,9 +29,12 @@ var (
 	client, _ = tls_client.NewHttpClient(tls_client.NewNoopLogger(), options...)
 )
 
-func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, sessionKey, proxy string, stream bool) {
+func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, stream bool) {
 	appendMessageApi := global.ServerConfig.Claude.BaseUrl + "/api/append_message"
-	client.SetProxy("http://127.0.0.1:7890")
+	err := client.SetProxy(global.HttpProxy)
+	if err != nil {
+		return
+	}
 	// 设置两个参数
 	newStringUuid := uuid.NewString()
 	// TODO 判断是否出错
@@ -92,6 +95,9 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 					},
 				},
 			}
+			if originalResponse.Completion == "" {
+				completionResponse.Choices[0].FinishReason = "stop"
+			}
 			if isRole {
 				completionResponse.Choices[0].Delta.Role = "assistant"
 			}
@@ -115,7 +121,10 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 
 func CreateChatConversations(newStringUuid string) {
 	chatConversationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations/" + global.ServerConfig.Claude.OrganizationUuid + "/chat_conversations"
-	client.SetProxy("http://127.0.0.1:7890")
+	err := client.SetProxy(global.HttpProxy)
+	if err != nil {
+		return
+	}
 	conversation := model.NewChatConversationRequest(newStringUuid, "")
 	marshal, err := json.Marshal(conversation)
 	if err != nil {
@@ -145,7 +154,10 @@ func CreateChatConversations(newStringUuid string) {
 }
 
 func DeleteChatConversations(newStringUuid string) {
-	client.SetProxy("http://127.0.0.1:7890")
+	err := client.SetProxy(global.HttpProxy)
+	if err != nil {
+		return
+	}
 	chatConversationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations/" + global.ServerConfig.Claude.OrganizationUuid + "/chat_conversations/"
 	request, err := http2.NewRequest(http2.MethodDelete, chatConversationsApi+newStringUuid, nil)
 	if err != nil {
@@ -170,7 +182,10 @@ func DeleteChatConversations(newStringUuid string) {
 }
 
 func GetOrganizations() ([]model.OrganizationsResponse, error) {
-	client.SetProxy("http://127.0.0.1:7890")
+	err := client.SetProxy(global.HttpProxy)
+	if err != nil {
+		return nil, err
+	}
 	organizationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations"
 	request, err := http2.NewRequest(http2.MethodGet, organizationsApi, nil)
 
