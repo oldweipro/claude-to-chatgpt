@@ -70,6 +70,21 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 		c.Header("Content-Type", "application/json")
 	}
 	var fullResponseText string
+	completionResponse := model.ChatCompletionStreamResponse{
+		ID:      "chatcmpl-7f1DmyzTWtiysnyfSS4i187kus2Ao",
+		Object:  "chat.completion.chunk",
+		Created: time.Now().Unix(),
+		Model:   "gpt-3.5-turbo-0613",
+		Choices: []model.ChatCompletionStreamChoice{
+			{
+				Index: 0,
+				Delta: model.ChatCompletionStreamChoiceDelta{
+					Content: originalResponse.Completion,
+				},
+				FinishReason: nil,
+			},
+		},
+	}
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -82,50 +97,36 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 			continue
 		}
 		line = line[6:]
-		if originalResponse.Stop == "" {
-			err = json.Unmarshal([]byte(line), &originalResponse)
-			if err != nil {
-				continue
-			}
-
-			completionResponse := model.ChatCompletionStreamResponse{
-				ID:      "chatcmpl-7f1DmyzTWtiysnyfSS4i187kus2Ao",
-				Object:  "chat.completion.chunk",
-				Created: time.Now().Unix(),
-				Model:   "gpt-3.5-turbo-0613",
-				Choices: []model.ChatCompletionStreamChoice{
-					{
-						Index: 0,
-						Delta: model.ChatCompletionStreamChoiceDelta{
-							Content: originalResponse.Completion,
-						},
-						FinishReason: nil,
-					},
-				},
-			}
-			if originalResponse.Stop != "" {
-				completionResponse.Choices[0].FinishReason = "stop"
-			}
-			if isRole {
-				completionResponse.Choices[0].Delta.Role = "assistant"
-			}
-			if !isRole && originalResponse.Stop == "" {
-				fullResponseText += originalResponse.Completion
-			}
-			if stream {
-				resp, _ := json.Marshal(completionResponse)
-				responseString := "data: " + string(resp) + "\n\n"
-				_, err = c.Writer.WriteString(responseString)
-				if err != nil {
-					return
-				}
-				c.Writer.Flush()
-			}
-			isRole = false
+		if isRole {
+			completionResponse.Choices[0].Delta.Role = "assistant"
+		} else {
+			completionResponse.Choices[0].Delta.Content = originalResponse.Completion
+			fullResponseText += originalResponse.Completion
+		}
+		completionResponse.Choices[0].Delta.Role = ""
+		isRole = false
+		if stream {
+			resp, _ := json.Marshal(completionResponse)
+			responseString := "data: " + string(resp) + "\n\n"
+			c.Writer.WriteString(responseString)
+			c.Writer.Flush()
+		}
+		err = json.Unmarshal([]byte(line), &originalResponse)
+		if err != nil {
+			continue
+		}
+		if originalResponse.Stop != "" && stream {
+			completionResponse.Choices[0].FinishReason = "stop"
+			completionResponse.Choices[0].Delta = model.ChatCompletionStreamChoiceDelta{}
+			resp, _ := json.Marshal(completionResponse)
+			responseString := "data: " + string(resp) + "\n\n"
+			c.Writer.WriteString(responseString)
+			c.Writer.Flush()
 		}
 	}
 	if stream {
 		c.Writer.WriteString("data: [DONE]\n\n")
+		c.Writer.Flush()
 	} else {
 		c.JSON(200, NewChatCompletion(fullResponseText))
 	}
@@ -209,7 +210,8 @@ func DeleteChatConversations(newStringUuid string) error {
 	//}
 	//fmt.Println("delete:", newStringUuid, string(body))
 	if res.StatusCode != 204 {
-		return errors.New("delete chat conversations err")
+		all, _ := io.ReadAll(res.Body)
+		return errors.New("delete chat conversations err" + string(all))
 	}
 	return nil
 }
@@ -275,7 +277,7 @@ func NewChatCompletion(fullResponseText string) model.ChatCompletionResponse {
 					Role:    "assistant",
 				},
 				Index:        0,
-				FinishReason: nil,
+				FinishReason: "stop",
 			},
 		},
 	}

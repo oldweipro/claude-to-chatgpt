@@ -1,8 +1,10 @@
 package global
 
-import "github.com/oldweipro/claude-to-chatgpt/config"
+import (
+	"github.com/oldweipro/claude-to-chatgpt/model"
+)
 
 var (
-	ServerConfig config.ServerConfig
+	ServerConfig model.ServerConfig
 	HttpProxy    string
 )

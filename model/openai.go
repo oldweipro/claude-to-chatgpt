@@ -74,8 +74,8 @@ type ChatCompletionResponse struct {
 	Object  string                 `json:"object"`
 	Created int64                  `json:"created"`
 	Model   string                 `json:"model"`
-	Usage   Usage                  `json:"usage"`
 	Choices []ChatCompletionChoice `json:"choices"`
+	Usage   Usage                  `json:"usage"`
 }
 
 type ChatCompletionChoice struct {

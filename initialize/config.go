@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/oldweipro/claude-to-chatgpt/global"
@@ -16,7 +17,11 @@ const (
 
 func NewViper() {
 	var config string
-	config = ConfigDefaultFile
+	flag.StringVar(&config, "c", "", "choose config file.")
+	flag.Parse()
+	if config == "" {
+		config = ConfigDefaultFile
+	}
 	v := viper.New()
 	v.SetConfigFile(config)
 	v.SetConfigType("yaml")

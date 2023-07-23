@@ -1,4 +1,4 @@
-package config
+package model
 
 type ServerConfig struct {
 	Claude Claude `mapstructure:"claude" json:"claude" yaml:"claude"`
