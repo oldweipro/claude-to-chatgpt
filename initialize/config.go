@@ -68,7 +68,12 @@ func SyncServerConfig() {
 		global.ServerConfig.Claude.BaseUrl = "https://claude.ai"
 	}
 	if global.ServerConfig.Proxy.Protocol != "" || global.ServerConfig.Proxy.Host != "" || global.ServerConfig.Proxy.Port != "" {
-		global.HttpProxy = global.ServerConfig.Proxy.Protocol + "://" + global.ServerConfig.Proxy.Host + ":" + global.ServerConfig.Proxy.Port
+		if global.ServerConfig.Proxy.Username != "" || global.ServerConfig.Proxy.Password != "" {
+			global.HttpProxy = global.ServerConfig.Proxy.Protocol + "://" + global.ServerConfig.Proxy.Username + ":" + global.ServerConfig.Proxy.Password + "@" + global.ServerConfig.Proxy.Host + ":" + global.ServerConfig.Proxy.Port
+			fmt.Println(global.HttpProxy)
+		} else {
+			global.HttpProxy = global.ServerConfig.Proxy.Protocol + "://" + global.ServerConfig.Proxy.Host + ":" + global.ServerConfig.Proxy.Port
+		}
 	}
 	if global.ServerConfig.Claude.SessionKey == "" {
 		fmt.Println("SessionKey cannot be empty.")
