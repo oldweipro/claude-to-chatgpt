@@ -33,14 +33,24 @@ cd claude-to-chatgpt
 
 Get dependencies
 
-```
+```shell
+# Tidy go.mod
 go mod tidy
+
+# Download dependencies in go.mod
+go mod download
 ```
 
 Run
 
-``` 
+```shell
 go run main.go
+```
+
+Use `-c` to specify the configuration file `config-dev.yaml`
+
+```shell
+go run main.go -c config-dev.yaml
 ```
 
 ## Configuration

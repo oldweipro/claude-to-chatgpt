@@ -31,14 +31,24 @@ cd claude-to-chatgpt
 
 获取依赖
 
-```
+```shell
+# 整理go.mod
 go mod tidy
+
+# 下载go.mod依赖
+go mod download
 ```
 
 运行
 
-```
+```shell
 go run main.go
+```
+
+使用 `-c` 指定配置文件 `config-dev.yaml`
+
+```shell
+go run main.go -c config-dev.yaml
 ```
 
 ## 配置
