@@ -9,7 +9,7 @@
 当启动本项目后,就可以按照 [v1/chat/completions](https://platform.openai.com/docs/api-reference/chat)
 的接口文档调用本项目接口 `http://127.0.0.1:8787/v1/chat/completions`
 得到与 [OpenAI API](https://platform.openai.com/docs/api-reference/chat)
-相同的数据结构,方便已经对 [OpenAI API](https://platform.openai.com/docs/api-reference/chat) 结果进行开发的用户快速切换。
+相同的数据结构,方便已经对 [OpenAI API](https://platform.openai.com/docs/api-reference/chat) 接口进行开发的用户快速切换。
 
 ## 运行环境
 

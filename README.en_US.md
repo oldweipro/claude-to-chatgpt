@@ -10,7 +10,7 @@ interfaces.
 After starting this project, you can call the interface `http://127.0.0.1:8787/v1/chat/completions` of this project
 according to the interface documentation of [v1/chat/completions](https://platform.openai.com/docs/api-reference/chat)
 to get the same data structure returned by [OpenAI API](https://platform.openai.com/docs/api-reference/chat). This
-facilitates users who have developed based on the results
+facilitates users who have developed based on the interface
 of [OpenAI API](https://platform.openai.com/docs/api-reference/chat) to quickly switch over.
 
 ## Runtime Environment
