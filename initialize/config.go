@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/oldweipro/claude-to-chatgpt/global"
-	"github.com/oldweipro/claude-to-chatgpt/service"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 	"os"
-	"strings"
 )
 
 const (
@@ -64,8 +62,8 @@ func NewViper() {
 }
 
 func SyncServerConfig() {
-	if global.ServerConfig.Claude.BaseUrl == "" {
-		global.ServerConfig.Claude.BaseUrl = "https://claude.ai"
+	if global.ServerConfig.BaseUrl == "" {
+		global.ServerConfig.BaseUrl = "https://claude.ai"
 	}
 	if global.ServerConfig.Proxy.Protocol != "" || global.ServerConfig.Proxy.Host != "" || global.ServerConfig.Proxy.Port != "" {
 		if global.ServerConfig.Proxy.Username != "" || global.ServerConfig.Proxy.Password != "" {
@@ -74,21 +72,6 @@ func SyncServerConfig() {
 		} else {
 			global.HttpProxy = global.ServerConfig.Proxy.Protocol + "://" + global.ServerConfig.Proxy.Host + ":" + global.ServerConfig.Proxy.Port
 		}
-	}
-	if global.ServerConfig.Claude.SessionKey == "" {
-		fmt.Println("SessionKey cannot be empty.")
-		return
-	}
-	if !strings.HasPrefix(global.ServerConfig.Claude.SessionKey, "sessionKey=") {
-		global.ServerConfig.Claude.SessionKey = "sessionKey=" + global.ServerConfig.Claude.SessionKey
-	}
-	if global.ServerConfig.Claude.OrganizationUuid == "" && global.ServerConfig.Claude.SessionKey != "" {
-		// 获取OrganizationUuid验证网络及参数是否正确
-		organizations, err := service.GetOrganizations()
-		if err != nil {
-			fmt.Println("get organizations err")
-		}
-		global.ServerConfig.Claude.OrganizationUuid = organizations[0].Uuid
 	}
 }
 

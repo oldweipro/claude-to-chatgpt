@@ -1,7 +1,8 @@
+base-url: https://claude.ai
 claude:
-  base-url: https://claude.ai
   session-key:
-  organization-uuid:
+  - sk-ant-sid01-gQ3f9zd4lMjAC7cnM-DxmnVSoiLNSndmdDKd-10_MdA3E7TMPjrtOFJEIFaV7PjS_UCtur20bhBovCpUhF2Ezg-9q2eRgAA
+  - sk-ant-sid01-vDrDPZ_iO8t76cjblDD7lmMTXfaZd4CdQcSHA25JWK8UApXAZXtUsp0i3a3YOmlxhxivtBLu1bCGB8EtMsFJ8A-2-WwYwAA
 proxy:
   protocol: http
   host: 127.0.0.1

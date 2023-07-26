@@ -31,21 +31,26 @@ var (
 )
 
 func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, stream bool) {
-	appendMessageApi := global.ServerConfig.Claude.BaseUrl + "/api/append_message"
-	err := client.SetProxy(global.HttpProxy)
+	sessionKey := global.ServerConfig.Claude.GetSessionKey()
+	organizationUuid, err := GetOrganizations(sessionKey)
+	if err != nil {
+		return
+	}
+	appendMessageApi := global.ServerConfig.BaseUrl + "/api/append_message"
+	err = client.SetProxy(global.HttpProxy)
 	if err != nil {
 		HandleErrorResponse(c, err.Error())
 		return
 	}
 	// 设置两个参数
 	newStringUuid := uuid.NewString()
-	_, err = CreateChatConversations(newStringUuid)
+	_, err = CreateChatConversations(newStringUuid, sessionKey)
 	if err != nil {
 		HandleErrorResponse(c, err.Error())
 		return
 	}
 	params.ConversationUuid = newStringUuid
-	params.OrganizationUuid = global.ServerConfig.Claude.OrganizationUuid
+	params.OrganizationUuid = organizationUuid
 	// 发起请求
 	marshal, err := json.Marshal(params)
 	if err != nil {
@@ -57,6 +62,7 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 		HandleErrorResponse(c, err.Error())
 		return
 	}
+	request.Header.Add("Cookie", sessionKey)
 	SetHeaders(request)
 	response, err := client.Do(request)
 	reader := bufio.NewReader(response.Body)
@@ -130,7 +136,7 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 	} else {
 		c.JSON(200, NewChatCompletion(fullResponseText))
 	}
-	err = DeleteChatConversations(newStringUuid)
+	err = DeleteChatConversations(newStringUuid, sessionKey)
 	if err != nil {
 		fmt.Println("delete err:", err, newStringUuid)
 	}
@@ -146,10 +152,14 @@ func HandleErrorResponse(c *gin.Context, err string) {
 	}})
 }
 
-func CreateChatConversations(newStringUuid string) (model.ChatConversationResponse, error) {
+func CreateChatConversations(newStringUuid, sessionKey string) (model.ChatConversationResponse, error) {
 	var chatConversationResponse model.ChatConversationResponse
-	chatConversationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations/" + global.ServerConfig.Claude.OrganizationUuid + "/chat_conversations"
-	err := client.SetProxy(global.HttpProxy)
+	organizationUuid, err := GetOrganizations(sessionKey)
+	if err != nil {
+		return chatConversationResponse, err
+	}
+	chatConversationsApi := global.ServerConfig.BaseUrl + "/api/organizations/" + organizationUuid + "/chat_conversations"
+	err = client.SetProxy(global.HttpProxy)
 	if err != nil {
 		return chatConversationResponse, err
 	}
@@ -163,6 +173,7 @@ func CreateChatConversations(newStringUuid string) (model.ChatConversationRespon
 	if err != nil {
 		return chatConversationResponse, err
 	}
+	request.Header.Add("Cookie", sessionKey)
 	SetHeaders(request)
 
 	res, err := client.Do(request)
@@ -184,17 +195,22 @@ func CreateChatConversations(newStringUuid string) (model.ChatConversationRespon
 	return chatConversationResponse, err
 }
 
-func DeleteChatConversations(newStringUuid string) error {
-	err := client.SetProxy(global.HttpProxy)
+func DeleteChatConversations(newStringUuid, sessionKey string) error {
+	organizationUuid, err := GetOrganizations(sessionKey)
 	if err != nil {
 		return err
 	}
-	chatConversationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations/" + global.ServerConfig.Claude.OrganizationUuid + "/chat_conversations/"
+	err = client.SetProxy(global.HttpProxy)
+	if err != nil {
+		return err
+	}
+	chatConversationsApi := global.ServerConfig.BaseUrl + "/api/organizations/" + organizationUuid + "/chat_conversations/"
 	request, err := http2.NewRequest(http2.MethodDelete, chatConversationsApi+newStringUuid, nil)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
+	request.Header.Add("Cookie", sessionKey)
 	SetHeaders(request)
 
 	res, err := client.Do(request)
@@ -216,42 +232,42 @@ func DeleteChatConversations(newStringUuid string) error {
 	return nil
 }
 
-func GetOrganizations() ([]model.OrganizationsResponse, error) {
+func GetOrganizations(sessionKey string) (string, error) {
 	err := client.SetProxy(global.HttpProxy)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	organizationsApi := global.ServerConfig.Claude.BaseUrl + "/api/organizations"
+	organizationsApi := global.ServerConfig.BaseUrl + "/api/organizations"
 	request, err := http2.NewRequest(http2.MethodGet, organizationsApi, nil)
 
 	if err != nil {
 		fmt.Println(err)
-		return nil, err
+		return "", err
 	}
+	request.Header.Add("Cookie", sessionKey)
 	SetHeaders(request)
 	res, err := client.Do(request)
 	if err != nil {
 		fmt.Println(err)
-		return nil, err
+		return "", err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
-		return nil, err
+		return "", err
 	}
 	var response []model.OrganizationsResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		fmt.Println("Unmarshal err:", err)
-		return nil, err
+		return "", err
 	}
-	return response, err
+	return response[0].Uuid, err
 }
 
 func SetHeaders(r *http2.Request) {
-	r.Header.Add("Cookie", global.ServerConfig.Claude.SessionKey)
 	r.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
 	r.Header.Add("Content-Type", "application/json")
 	r.Header.Add("Accept", "*/*")
