@@ -34,6 +34,7 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 	sessionKey := global.ServerConfig.Claude.GetSessionKey()
 	organizationUuid, err := GetOrganizations(sessionKey)
 	if err != nil {
+		HandleErrorResponse(c, err.Error())
 		return
 	}
 	appendMessageApi := global.ServerConfig.BaseUrl + "/api/append_message"
