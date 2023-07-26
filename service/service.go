@@ -62,8 +62,7 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 		HandleErrorResponse(c, err.Error())
 		return
 	}
-	request.Header.Add("Cookie", sessionKey)
-	SetHeaders(request)
+	SetHeaders(request, sessionKey)
 	response, err := client.Do(request)
 	reader := bufio.NewReader(response.Body)
 	var originalResponse model.ChatMessageResponse
@@ -173,8 +172,7 @@ func CreateChatConversations(newStringUuid, sessionKey string) (model.ChatConver
 	if err != nil {
 		return chatConversationResponse, err
 	}
-	request.Header.Add("Cookie", sessionKey)
-	SetHeaders(request)
+	SetHeaders(request, sessionKey)
 
 	res, err := client.Do(request)
 	if err != nil {
@@ -210,8 +208,7 @@ func DeleteChatConversations(newStringUuid, sessionKey string) error {
 		fmt.Println(err)
 		return err
 	}
-	request.Header.Add("Cookie", sessionKey)
-	SetHeaders(request)
+	SetHeaders(request, sessionKey)
 
 	res, err := client.Do(request)
 	if err != nil {
@@ -244,8 +241,7 @@ func GetOrganizations(sessionKey string) (string, error) {
 		fmt.Println(err)
 		return "", err
 	}
-	request.Header.Add("Cookie", sessionKey)
-	SetHeaders(request)
+	SetHeaders(request, sessionKey)
 	res, err := client.Do(request)
 	if err != nil {
 		fmt.Println(err)
@@ -267,7 +263,8 @@ func GetOrganizations(sessionKey string) (string, error) {
 	return response[0].Uuid, err
 }
 
-func SetHeaders(r *http2.Request) {
+func SetHeaders(r *http2.Request, sessionKey string) {
+	r.Header.Add("Cookie", sessionKey)
 	r.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
 	r.Header.Add("Content-Type", "application/json")
 	r.Header.Add("Accept", "*/*")
