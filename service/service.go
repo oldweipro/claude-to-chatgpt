@@ -145,6 +145,7 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 }
 
 func HandleErrorResponse(c *gin.Context, err string) {
+	fmt.Println(err)
 	c.JSON(500, gin.H{"error": gin.H{
 		"message": "Unknown error",
 		"type":    "internal_server_error",
@@ -168,7 +169,7 @@ func CreateChatConversations(newStringUuid, sessionKey string) (model.ChatConver
 	conversation := model.NewChatConversationRequest(newStringUuid, "")
 	marshal, err := json.Marshal(conversation)
 	if err != nil {
-		fmt.Println("Marshal err:", err)
+		return chatConversationResponse, err
 	}
 	request, err := http2.NewRequest(http2.MethodPost, chatConversationsApi, bytes.NewBuffer(marshal))
 
@@ -179,14 +180,12 @@ func CreateChatConversations(newStringUuid, sessionKey string) (model.ChatConver
 
 	res, err := client.Do(request)
 	if err != nil {
-		fmt.Println(err)
 		return chatConversationResponse, err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err)
 		return chatConversationResponse, err
 	}
 	err = json.Unmarshal(body, &chatConversationResponse)
@@ -208,14 +207,12 @@ func DeleteChatConversations(newStringUuid, sessionKey string) error {
 	chatConversationsApi := global.ServerConfig.BaseUrl + "/api/organizations/" + organizationUuid + "/chat_conversations/"
 	request, err := http2.NewRequest(http2.MethodDelete, chatConversationsApi+newStringUuid, nil)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	SetHeaders(request, sessionKey)
 
 	res, err := client.Do(request)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	defer res.Body.Close()
@@ -241,26 +238,25 @@ func GetOrganizations(sessionKey string) (string, error) {
 	request, err := http2.NewRequest(http2.MethodGet, organizationsApi, nil)
 
 	if err != nil {
-		fmt.Println(err)
 		return "", err
 	}
 	SetHeaders(request, sessionKey)
 	res, err := client.Do(request)
 	if err != nil {
-		fmt.Println(err)
 		return "", err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err)
 		return "", err
+	}
+	if res.StatusCode == 307 {
+		return "", errors.New("unfortunately, Claude is only available in certain regions right now. Please contact help@anthropic.com if you believe you are receiving this message in error")
 	}
 	var response []model.OrganizationsResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		fmt.Println("Unmarshal err:", err)
 		return "", err
 	}
 	return response[0].Uuid, err
