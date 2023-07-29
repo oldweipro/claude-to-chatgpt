@@ -56,7 +56,7 @@ go run main.go
 使用 `-http_proxy` 设置 `http_proxy` 例如 `http://127.0.0.1:7890`
 
 ```shell
-go run main.go -c config-dev.yaml
+go run main.go -c config-dev.yaml -http_proxy http://127.0.0.1:7890
 ```
 
 ## 配置
@@ -81,7 +81,7 @@ go run main.go -c config-dev.yaml
 Windows:
 
 ```shell
-CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o claude-to-chatgpt-windows_x64
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o claude-to-chatgpt-windows_x64.exe
 ```
 
 Linux:

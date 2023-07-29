@@ -58,7 +58,7 @@ Use `-c` to specify the configuration file `config-dev.yaml`
 Use `-http_proxy` to set `http_proxy` For example `http://127.0.0.1:7890`
 
 ```shell
-go run main.go -c config-dev.yaml
+go run main.go -c config-dev.yaml -http_proxy http://127.0.0.1:7890
 ```
 
 ## Configuration
@@ -84,7 +84,7 @@ You can compile executable files for different platforms.
 Windows:
 
 ```shell
-CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o claude-to-chatgpt-windows_x64
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o claude-to-chatgpt-windows_x64.exe
 ```
 
 Linux:
