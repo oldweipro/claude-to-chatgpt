@@ -15,9 +15,19 @@ const (
 	ConfigDefaultFile = "config.yaml"
 )
 
-func NewViper() {
-	var config string
+var (
+	config    = ""
+	httpProxy = ""
+	baseUrl   = ""
+)
+
+func init() {
 	flag.StringVar(&config, "c", "", "choose config file.")
+	flag.StringVar(&httpProxy, "http_proxy", "", "set http_proxy, for example http://127.0.0.1:7890")
+	flag.StringVar(&baseUrl, "base_url", "", "set base_url, for example https://claude.ai")
+}
+
+func NewViper() {
 	flag.Parse()
 	if config == "" {
 		config = ConfigDefaultFile
@@ -52,27 +62,15 @@ func NewViper() {
 		if err = v.Unmarshal(&global.ServerConfig); err != nil {
 			fmt.Println(err)
 		}
-		SyncServerConfig()
 		PrintServerConfig()
 	})
 	if err = v.Unmarshal(&global.ServerConfig); err != nil {
 		fmt.Println(err)
 	}
-	SyncServerConfig()
-}
-
-func SyncServerConfig() {
 	if global.ServerConfig.BaseUrl == "" {
 		global.ServerConfig.BaseUrl = "https://claude.ai"
 	}
-	if global.ServerConfig.Proxy.Protocol != "" || global.ServerConfig.Proxy.Host != "" || global.ServerConfig.Proxy.Port != "" {
-		if global.ServerConfig.Proxy.Username != "" || global.ServerConfig.Proxy.Password != "" {
-			global.HttpProxy = global.ServerConfig.Proxy.Protocol + "://" + global.ServerConfig.Proxy.Username + ":" + global.ServerConfig.Proxy.Password + "@" + global.ServerConfig.Proxy.Host + ":" + global.ServerConfig.Proxy.Port
-			fmt.Println(global.HttpProxy)
-		} else {
-			global.HttpProxy = global.ServerConfig.Proxy.Protocol + "://" + global.ServerConfig.Proxy.Host + ":" + global.ServerConfig.Proxy.Port
-		}
-	}
+	global.ServerConfig.HttpProxy = httpProxy
 }
 
 func PrintServerConfig() {

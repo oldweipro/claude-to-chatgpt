@@ -13,6 +13,12 @@ to get the same data structure returned by [OpenAI API](https://platform.openai.
 facilitates users who have developed based on the interface
 of [OpenAI API](https://platform.openai.com/docs/api-reference/chat) to quickly switch over.
 
+## Docker Run
+
+```shell
+docker build -t claude-to-chatgpt:latest . && docker run -p 8787:8787 --name claude-to-chatgpt claude-to-chatgpt:latest
+```
+
 ## Runtime Environment
 
 Requires [Go](https://go.dev/dl/) version 1.20 or above.
@@ -49,6 +55,8 @@ go run main.go
 
 Use `-c` to specify the configuration file `config-dev.yaml`
 
+Use `-http_proxy` to set `http_proxy` For example `http://127.0.0.1:7890`
+
 ```shell
 go run main.go -c config-dev.yaml
 ```
@@ -60,18 +68,12 @@ If the configuration file does not exist, the program will create it automatical
 If the configuration information filled in after startup is incorrect, just modify the configuration file directly and
 save it. The program will automatically reload.
 
-| Configuration       | Description                                                 | Example Value        |
-|---------------------|-------------------------------------------------------------|----------------------|
-| claude              | Claude related configuration                                |                      |  
-| - base-url          | Claude service address, optional                            | https://claude.ai    |
-| - session-key       | Unique identifier of current conversation session, required | sk-ant-xxxx-8MgHUgAA |
-| - organization-uuid | Organization unique ID, optional                            |                      |
-| proxy               | Proxy configuration, optional                               |                      |
-| - protocol          | Protocol                                                    | http                 | 
-| - host              | Proxy server address                                        | 127.0.0.1            |
-| - port              | Proxy server port                                           | 7890                 |
-| - username          | Authentication username                                     |                      |
-| - password          | Authentication password                                     |                      |
+| Configuration  | Description                                                                                                                                                                                               | Example Value                                |
+|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| claude         | Claude related configuration                                                                                                                                                                              |                                              |  
+| - base-url     | Claude service address, optional                                                                                                                                                                          | https://claude.ai                            |
+| - session-keys | Unique identifier of current conversation session array, required                                                                                                                                         | [sk-ant-xxxx-8MgHUgAA, sk-ant-yyyy-9NhIXgBB] |
+| http-proxy     | Proxy configuration, optional,<br/>(Including but not limited to)Note the connectivity in Docker<br/>May need to replace `http://127.0.0.1:7890` with the host IP<br/>Such as `http://192.168.1.100:7890` | http://127.0.0.1:7890                        |
 
 ## Deployment
 

@@ -38,7 +38,7 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 		return
 	}
 	appendMessageApi := global.ServerConfig.BaseUrl + "/api/append_message"
-	err = client.SetProxy(global.HttpProxy)
+	err = client.SetProxy(global.ServerConfig.HttpProxy)
 	if err != nil {
 		HandleErrorResponse(c, err.Error())
 		return
@@ -159,7 +159,7 @@ func CreateChatConversations(newStringUuid, sessionKey string) (model.ChatConver
 		return chatConversationResponse, err
 	}
 	chatConversationsApi := global.ServerConfig.BaseUrl + "/api/organizations/" + organizationUuid + "/chat_conversations"
-	err = client.SetProxy(global.HttpProxy)
+	err = client.SetProxy(global.ServerConfig.HttpProxy)
 	if err != nil {
 		return chatConversationResponse, err
 	}
@@ -199,7 +199,7 @@ func DeleteChatConversations(newStringUuid, sessionKey string) error {
 	if err != nil {
 		return err
 	}
-	err = client.SetProxy(global.HttpProxy)
+	err = client.SetProxy(global.ServerConfig.HttpProxy)
 	if err != nil {
 		return err
 	}
@@ -231,7 +231,7 @@ func DeleteChatConversations(newStringUuid, sessionKey string) error {
 }
 
 func GetOrganizations(sessionKey string) (string, error) {
-	err := client.SetProxy(global.HttpProxy)
+	err := client.SetProxy(global.ServerConfig.HttpProxy)
 	if err != nil {
 		return "", err
 	}

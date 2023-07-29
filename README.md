@@ -11,6 +11,12 @@
 得到与 [OpenAI API](https://platform.openai.com/docs/api-reference/chat)
 相同的数据结构,方便已经对 [OpenAI API](https://platform.openai.com/docs/api-reference/chat) 接口进行开发的用户快速切换。
 
+## Docker Run
+
+```shell
+docker build -t claude-to-chatgpt:latest . && docker run -p 8787:8787 --name claude-to-chatgpt claude-to-chatgpt:latest
+```
+
 ## 运行环境
 
 需要 [Go](https://go.dev/dl/) 1.20 及以上版本。
@@ -47,6 +53,8 @@ go run main.go
 
 使用 `-c` 指定配置文件 `config-dev.yaml`
 
+使用 `-http_proxy` 设置 `http_proxy` 例如 `http://127.0.0.1:7890`
+
 ```shell
 go run main.go -c config-dev.yaml
 ```
@@ -57,18 +65,12 @@ go run main.go -c config-dev.yaml
 
 如果启动后填写的配置信息有误,直接修改配置文件并保存即可,程序会自动重新加载。
 
-| 配置项                 | 说明                 | 示例值                  |
-|---------------------|--------------------|----------------------|  
-| claude              | Claude 相关配置        |                      |
-| - base-url          | Claude服务地址,可选      | https://claude.ai    |
-| - session-key       | 当前对话session唯一标识,必填 | sk-ant-xxxx-8MgHUgAA | 
-| - organization-uuid | 组织唯一ID,可选          |                      |
-| proxy               | 代理配置,可选            |                      |
-| - protocol          | 协议                 | http                 |
-| - host              | 代理服务器地址            | 127.0.0.1            |
-| - port              | 代理服务器端口            | 7890                 |
-| - username          | 认证用户名              |                      |
-| - password          | 认证密码               |                      |
+| 配置项            | 说明                                                                                                        | 示例值                   |
+|----------------|-----------------------------------------------------------------------------------------------------------|-----------------------|  
+| claude         | Claude 相关配置                                                                                               |                       |
+| - base-url     | Claude服务地址,可选                                                                                             | https://claude.ai     |
+| - session-keys | 当前对话session唯一标识数组,必填                                                                                      | [sk1, sk2]            | 
+| proxy          | 代理配置,可选<br/>(包含但不限于)注意在Docker中的连通性<br/>可能需要更换`http://127.0.0.1:7890`为宿主机IP<br/>如`http://192.168.1.2:7890` | http://127.0.0.1:7890 |
 
 ## 部署
 
