@@ -80,20 +80,20 @@ go run main.go -c config-dev.yaml
 
 Windows:
 
-```
-CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build
+```shell
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o claude-to-chatgpt-windows_x64
 ```
 
 Linux:
 
-```
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build 
+```shell
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o claude-to-chatgpt-linux_x64
 ```
 
 macOS:
 
-```
-CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build
+```shell
+CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o claude-to-chatgpt-macos_x64
 ```
 
 ### 运行
