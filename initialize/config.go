@@ -67,10 +67,15 @@ func NewViper() {
 	if err = v.Unmarshal(&global.ServerConfig); err != nil {
 		fmt.Println(err)
 	}
+	if baseUrl != "" {
+		global.ServerConfig.BaseUrl = baseUrl
+	}
+	if httpProxy != "" {
+		global.ServerConfig.HttpProxy = httpProxy
+	}
 	if global.ServerConfig.BaseUrl == "" {
 		global.ServerConfig.BaseUrl = "https://claude.ai"
 	}
-	global.ServerConfig.HttpProxy = httpProxy
 }
 
 func PrintServerConfig() {

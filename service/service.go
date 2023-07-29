@@ -50,6 +50,12 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 		HandleErrorResponse(c, err.Error())
 		return
 	}
+	defer func(newStringUuid, sessionKey string) {
+		err := DeleteChatConversations(newStringUuid, sessionKey)
+		if err != nil {
+			fmt.Println("delete err:", err, newStringUuid)
+		}
+	}(newStringUuid, sessionKey)
 	params.ConversationUuid = newStringUuid
 	params.OrganizationUuid = organizationUuid
 	// 发起请求
@@ -135,10 +141,6 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 		c.Writer.Flush()
 	} else {
 		c.JSON(200, NewChatCompletion(fullResponseText))
-	}
-	err = DeleteChatConversations(newStringUuid, sessionKey)
-	if err != nil {
-		fmt.Println("delete err:", err, newStringUuid)
 	}
 }
 
