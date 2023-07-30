@@ -13,6 +13,10 @@ to get the same data structure returned by [OpenAI API](https://platform.openai.
 facilitates users who have developed based on the interface
 of [OpenAI API](https://platform.openai.com/docs/api-reference/chat) to quickly switch over.
 
+## Video Tutorial
+
+[Development Tutorial](https://www.bilibili.com/video/BV1DV4y1q7Dp/?vd_source=239ca057ded009574befe2b4e513d6a3)
+
 ## Docker Run
 
 ```shell

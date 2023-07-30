@@ -11,6 +11,10 @@
 得到与 [OpenAI API](https://platform.openai.com/docs/api-reference/chat)
 相同的数据结构,方便已经对 [OpenAI API](https://platform.openai.com/docs/api-reference/chat) 接口进行开发的用户快速切换。
 
+## 视频教程
+
+[开发教程](https://www.bilibili.com/video/BV1DV4y1q7Dp/?vd_source=239ca057ded009574befe2b4e513d6a3)
+
 ## Docker Run
 
 ```shell
