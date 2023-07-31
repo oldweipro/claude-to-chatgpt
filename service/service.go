@@ -31,7 +31,7 @@ var (
 )
 
 func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, stream bool) {
-	sessionKey := global.ServerConfig.Claude.GetSessionKey()
+	sessionKey := GetSessionKey(c)
 	organizationUuid, err := GetOrganizations(sessionKey)
 	if err != nil {
 		HandleErrorResponse(c, err.Error())
