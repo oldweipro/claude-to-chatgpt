@@ -9,10 +9,20 @@ import (
 // OpenaiToClaudeParams 转换成claude的参数
 func OpenaiToClaudeParams(chatCompletionRequest model.ChatCompletionRequest) *model.ChatMessageRequest {
 	completionMessages := chatCompletionRequest.Messages
-	marshal, err := json.Marshal(completionMessages)
+	text := completionMessages[len(completionMessages)-1]
+	history := completionMessages[:len(completionMessages)-1]
+	textMarshal, err := json.Marshal(text)
 	if err != nil {
-		fmt.Println("Marshal err:", err)
+		fmt.Println("Text marshal err:", err)
 	}
-	content := string(marshal)
-	return model.NewChatMessageRequest(content)
+	textMessage := string(textMarshal)
+	historyMessage := ""
+	if len(history) > 0 {
+		historyMarshal, err := json.Marshal(history)
+		if err != nil {
+			fmt.Println("History marshal err:", err)
+		}
+		historyMessage = string(historyMarshal)
+	}
+	return model.NewChatMessageRequest(textMessage, historyMessage)
 }

@@ -20,13 +20,23 @@ type MessageLimit struct {
 	Type string `json:"type"`
 }
 
-func NewChatMessageRequest(message string) *ChatMessageRequest {
+func NewChatMessageRequest(text, history string) *ChatMessageRequest {
+	var attachments []Attachments
+	if history != "" {
+		attachments = append(attachments, Attachments{
+			FileName:         "paste.txt",
+			FileType:         "txt",
+			FileSize:         uint(len(history)),
+			ExtractedContent: history,
+		})
+
+	}
 	return &ChatMessageRequest{
-		Completion:       NewCompletion(message),
+		Completion:       NewCompletion(text),
 		OrganizationUuid: "",
 		ConversationUuid: "",
-		Text:             message,
-		Attachments:      []Attachments{},
+		Text:             text,
+		Attachments:      attachments,
 	}
 }
 
