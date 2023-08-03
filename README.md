@@ -77,14 +77,28 @@ go run main.go -c config-dev.yaml -http_proxy http://127.0.0.1:7890
 
 | 配置项            | 说明                                                                                                                                                                                     | 示例值                   |
 |----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|  
+| base-url       | Claude服务地址,可选                                                                                                                                                                          | https://claude.ai     |
 | claude         | Claude 相关配置                                                                                                                                                                            |                       |
-| - base-url     | Claude服务地址,可选                                                                                                                                                                          | https://claude.ai     |
-| - session-keys | 当前对话session唯一标识数组,必填<br/>支持在 `Header Authorization` 中设置 `Bearer sessionKey`<br/>参考 [Authentication](https://platform.openai.com/docs/api-reference/authentication)<br/>Header优先级大于配置文件 | [sk1, sk2]            | 
-| proxy          | 代理配置,可选<br/>(包含但不限于)注意在Docker中的连通性<br/>可能需要更换`http://127.0.0.1:7890`为宿主机IP<br/>如`http://192.168.1.2:7890`                                                                              | http://127.0.0.1:7890 |
+| - session-keys | 当前对话session唯一标识数组,必填<br/>支持在 `Header Authorization` 中设置 `Bearer sessionKey`<br/>参考 [Authentication](https://platform.openai.com/docs/api-reference/authentication)<br/>Header优先级大于配置文件 | [sk-1, sk-2]          | 
+| http-proxy     | 代理配置,可选<br/>(包含但不限于)注意在Docker中的连通性<br/>可能需要更换`http://127.0.0.1:7890`为宿主机IP<br/>如`http://192.168.1.2:7890`                                                                              | http://127.0.0.1:7890 |
 
 ## 部署
 
 ### 官方镜像部署
+
+环境变量
+
+**CLAUDE_SESSION_KEYS**
+
+设置session keys,用于认证和授权Claude API。可以设置多个key,使用`,`隔开。
+
+**CLAUDE_HTTP_PROXY**
+
+设置Claude使用的HTTP代理地址。
+
+**CLAUDE_BASE_URL**
+
+设置Claude API的基础地址,也就是服务的访问URL。
 
 ```shell
 docker pull oldweipro/claude-to-chatgpt:latest && docker run -p 8787:8787 --name claude-to-chatgpt oldweipro/claude-to-chatgpt:latest
