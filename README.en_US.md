@@ -4,24 +4,16 @@
 
 ## Introduction
 
-This project adapts the chat functionality interface of [Claude](https://claude.ai) to the standard OpenAI API
-interfaces.
+This project adapts the chat functionality interface of [Claude](https://claude.ai) to the standard OpenAI API interfaces.
 
 After starting this project, you can call the interface `http://127.0.0.1:8787/v1/chat/completions` of this project
 according to the interface documentation of [v1/chat/completions](https://platform.openai.com/docs/api-reference/chat)
 to get the same data structure returned by [OpenAI API](https://platform.openai.com/docs/api-reference/chat). This
-facilitates users who have developed based on the interface
-of [OpenAI API](https://platform.openai.com/docs/api-reference/chat) to quickly switch over.
+facilitates users who have developed based on the interface of [OpenAI API](https://platform.openai.com/docs/api-reference/chat) to quickly switch over.
 
 ## Video Tutorial
 
-[Development Tutorial](https://www.bilibili.com/video/BV1DV4y1q7Dp/?vd_source=239ca057ded009574befe2b4e513d6a3)
-
-## Docker Run
-
-```shell
-docker build -t claude-to-chatgpt:latest . && docker run -p 8787:8787 --name claude-to-chatgpt claude-to-chatgpt:latest
-```
+[Development Tutorial](https://www.bilibili.com/video/BV1DV4y1q7Dp)
 
 ## Runtime Environment
 
@@ -34,6 +26,15 @@ git clone https://github.com/oldweipro/claude-to-chatgpt.git
 ```
 
 ## Run
+
+### Docker
+
+Manual build run
+```shell
+docker build -t claude-to-chatgpt:latest . && docker run -p 8787:8787 --name claude-to-chatgpt claude-to-chatgpt:latest
+```
+
+### IDE
 
 Enter project directory
 
@@ -56,6 +57,8 @@ Run
 ```shell
 go run main.go
 ```
+
+### Other
 
 Use `-c` to specify the configuration file `config-dev.yaml`
 
@@ -81,7 +84,13 @@ save it. The program will automatically reload.
 
 ## Deployment
 
-### Compile
+### Official image deployment
+
+```shell
+docker pull oldweipro/claude-to-chatgpt:latest && docker run -p 8787:8787 --name claude-to-chatgpt oldweipro/claude-to-chatgpt:latest
+```
+
+### Manual Compile
 
 You can compile executable files for different platforms.
 

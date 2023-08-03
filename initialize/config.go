@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 	"os"
+	"strings"
 )
 
 const (
@@ -67,14 +68,27 @@ func NewViper() {
 	if err = v.Unmarshal(&global.ServerConfig); err != nil {
 		fmt.Println(err)
 	}
+	if global.ServerConfig.BaseUrl == "" {
+		global.ServerConfig.BaseUrl = "https://claude.ai"
+	}
+	// 设置命令参数
 	if baseUrl != "" {
 		global.ServerConfig.BaseUrl = baseUrl
 	}
 	if httpProxy != "" {
 		global.ServerConfig.HttpProxy = httpProxy
 	}
-	if global.ServerConfig.BaseUrl == "" {
-		global.ServerConfig.BaseUrl = "https://claude.ai"
+	// 设置环境变量
+	keysEnv := os.Getenv("CLAUDE_SESSION_KEYS")
+	keys := strings.Split(keysEnv, ",")
+	global.ServerConfig.Claude.SessionKeys = append(global.ServerConfig.Claude.SessionKeys, keys...)
+	baseUrlEnv := os.Getenv("CLAUDE_BASE_URL")
+	if baseUrlEnv != "" {
+		global.ServerConfig.BaseUrl = baseUrlEnv
+	}
+	httpProxyEnv := os.Getenv("CLAUDE_HTTP_PROXY")
+	if httpProxyEnv != "" {
+		global.ServerConfig.HttpProxy = httpProxyEnv
 	}
 }
 

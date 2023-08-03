@@ -1,6 +1,4 @@
 base-url:
 claude:
   session-keys:
-    - sk1
-    - sk2
 http-proxy:

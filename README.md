@@ -13,13 +13,7 @@
 
 ## 视频教程
 
-[开发教程](https://www.bilibili.com/video/BV1DV4y1q7Dp/?vd_source=239ca057ded009574befe2b4e513d6a3)
-
-## Docker Run
-
-```shell
-docker build -t claude-to-chatgpt:latest . && docker run -p 8787:8787 --name claude-to-chatgpt claude-to-chatgpt:latest
-```
+[开发教程](https://www.bilibili.com/video/BV1DV4y1q7Dp)
 
 ## 运行环境
 
@@ -32,6 +26,16 @@ git clone https://github.com/oldweipro/claude-to-chatgpt.git
 ```
 
 ## 运行
+
+### Docker
+
+手动构建运行
+
+```shell
+docker build -t claude-to-chatgpt:latest . && docker run -p 8787:8787 --name claude-to-chatgpt claude-to-chatgpt:latest
+```
+
+### 编辑器
 
 进入项目目录
 
@@ -54,6 +58,8 @@ go mod download
 ```shell
 go run main.go
 ```
+
+### 其他
 
 使用 `-c` 指定配置文件 `config-dev.yaml`
 
@@ -78,7 +84,13 @@ go run main.go -c config-dev.yaml -http_proxy http://127.0.0.1:7890
 
 ## 部署
 
-### 编译
+### 官方镜像部署
+
+```shell
+docker pull oldweipro/claude-to-chatgpt:latest && docker run -p 8787:8787 --name claude-to-chatgpt oldweipro/claude-to-chatgpt:latest
+```
+
+### 手动编译
 
 可针对不同平台编译生成可执行文件。
 
