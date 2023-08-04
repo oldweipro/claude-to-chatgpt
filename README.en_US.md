@@ -34,7 +34,7 @@ git clone https://github.com/oldweipro/claude-to-chatgpt.git
 Manual build run
 
 ```shell
-docker build -t claude-to-chatgpt:latest . && docker run -p 8787:8787 --name claude-to-chatgpt claude-to-chatgpt:latest
+docker build -t oldweipro/claude-to-chatgpt:latest . && docker run -p 8787:8787 --name claude-to-chatgpt oldweipro/claude-to-chatgpt:latest
 ```
 
 ### IDE
