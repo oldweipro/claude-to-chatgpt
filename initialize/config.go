@@ -17,26 +17,26 @@ const (
 )
 
 var (
-	config    = ""
-	httpProxy = ""
-	baseUrl   = ""
+	configFlag    = ""
+	httpProxyFlag = ""
+	baseUrlFlag   = ""
 )
 
 func init() {
-	flag.StringVar(&config, "c", "", "choose config file.")
-	flag.StringVar(&httpProxy, "http_proxy", "", "set http_proxy, for example http://127.0.0.1:7890")
-	flag.StringVar(&baseUrl, "base_url", "", "set base_url, for example https://claude.ai")
+	flag.StringVar(&configFlag, "c", "", "choose config file.")
+	flag.StringVar(&httpProxyFlag, "http_proxy", "", "set http_proxy, for example http://127.0.0.1:7890")
+	flag.StringVar(&baseUrlFlag, "base_url", "", "set base_url, for example https://claude.ai")
 }
 
 func NewViper() {
 	flag.Parse()
-	if config == "" {
-		config = ConfigDefaultFile
+	if configFlag == "" {
+		configFlag = ConfigDefaultFile
 	}
 	// check config file
-	_, err := os.Stat(config)
+	_, err := os.Stat(configFlag)
 	if os.IsNotExist(err) {
-		file, err := os.Create(config)
+		file, err := os.Create(configFlag)
 		// 其他处理
 		if err != nil {
 			return
@@ -50,16 +50,20 @@ func NewViper() {
 		fmt.Println("File created and data written successfully.")
 	}
 	v := viper.New()
-	v.SetConfigFile(config)
+	v.SetConfigFile(configFlag)
 	v.SetConfigType("yaml")
+	// 设置默认值
+	v.SetDefault("base-url", "https://claude.ai")
 	err = v.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	v.WatchConfig()
 
+	v.WatchConfig()
 	v.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("config file changed:", e.Name)
+		// 因为viper值如果为空（删除）不会复写原来的值，数组内的值删除会出现不生效问题，SessionKeys先置为空再赋值
+		global.ServerConfig.Claude.SessionKeys = nil
 		if err = v.Unmarshal(&global.ServerConfig); err != nil {
 			fmt.Println(err)
 		}
@@ -68,15 +72,12 @@ func NewViper() {
 	if err = v.Unmarshal(&global.ServerConfig); err != nil {
 		fmt.Println(err)
 	}
-	if global.ServerConfig.BaseUrl == "" {
-		global.ServerConfig.BaseUrl = "https://claude.ai"
-	}
 	// 设置命令参数
-	if baseUrl != "" {
-		global.ServerConfig.BaseUrl = baseUrl
+	if baseUrlFlag != "" {
+		global.ServerConfig.BaseUrl = baseUrlFlag
 	}
-	if httpProxy != "" {
-		global.ServerConfig.HttpProxy = httpProxy
+	if httpProxyFlag != "" {
+		global.ServerConfig.HttpProxy = httpProxyFlag
 	}
 	// 设置环境变量
 	keysEnv := os.Getenv("CLAUDE_SESSION_KEYS")
