@@ -71,6 +71,10 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 	}
 	SetHeaders(request, sessionKey)
 	response, err := client.Do(request)
+	if response.StatusCode != 200 {
+		HandleErrorResponse(c, "claude错误")
+		return
+	}
 	reader := bufio.NewReader(response.Body)
 	var originalResponse model.ChatMessageResponse
 	var isRole = true
@@ -183,6 +187,9 @@ func CreateChatConversations(newStringUuid, sessionKey string) (model.ChatConver
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode != 201 {
+		return chatConversationResponse, errors.New("claude出错")
+	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return chatConversationResponse, err
@@ -250,8 +257,8 @@ func GetOrganizations(sessionKey string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if res.StatusCode == 307 {
-		return "", errors.New("unfortunately, Claude is only available in certain regions right now. Please contact help@anthropic.com if you believe you are receiving this message in error")
+	if res.StatusCode != 200 {
+		return "", errors.New("claude出错")
 	}
 	var response []model.OrganizationsResponse
 	err = json.Unmarshal(body, &response)
