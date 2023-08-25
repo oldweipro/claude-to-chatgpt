@@ -149,6 +149,7 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 }
 
 func HandleErrorResponse(c *gin.Context, err string) {
+	fmt.Println(err)
 	c.JSON(500, gin.H{"error": gin.H{
 		"message": "Unknown error",
 		"type":    "internal_server_error",
@@ -188,7 +189,7 @@ func CreateChatConversations(newStringUuid, sessionKey string) (model.ChatConver
 	defer res.Body.Close()
 
 	if res.StatusCode != 201 {
-		return chatConversationResponse, errors.New("claude出错")
+		return chatConversationResponse, errors.New("Claude创建会话出错: " + res.Status)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -258,7 +259,7 @@ func GetOrganizations(sessionKey string) (string, error) {
 		return "", err
 	}
 	if res.StatusCode != 200 {
-		return "", errors.New("claude出错")
+		return "", errors.New("Claude获取组织出错: " + res.Status)
 	}
 	var response []model.OrganizationsResponse
 	err = json.Unmarshal(body, &response)
