@@ -81,8 +81,10 @@ func NewViper() {
 	}
 	// 设置环境变量
 	keysEnv := os.Getenv("CLAUDE_SESSION_KEYS")
-	keys := strings.Split(keysEnv, ",")
-	global.ServerConfig.Claude.SessionKeys = append(global.ServerConfig.Claude.SessionKeys, keys...)
+	if keysEnv != "" {
+		keys := strings.Split(keysEnv, ",")
+		global.ServerConfig.Claude.SessionKeys = append(global.ServerConfig.Claude.SessionKeys, keys...)
+	}
 	baseUrlEnv := os.Getenv("CLAUDE_BASE_URL")
 	if baseUrlEnv != "" {
 		global.ServerConfig.BaseUrl = baseUrlEnv
