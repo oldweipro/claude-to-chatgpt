@@ -259,7 +259,7 @@ func GetOrganizations(sessionKey string) (string, error) {
 		return "", err
 	}
 	if res.StatusCode != 200 {
-		return "", errors.New("Claude获取组织出错: " + res.Status)
+		return "", errors.New(fmt.Sprintf("Claude获取组织出错: %s, %s", res.Status, string(body)))
 	}
 	var response []model.OrganizationsResponse
 	err = json.Unmarshal(body, &response)
