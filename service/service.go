@@ -151,7 +151,7 @@ func RequestClaudeToResponse(c *gin.Context, params *model.ChatMessageRequest, s
 func HandleErrorResponse(c *gin.Context, err string) {
 	fmt.Println(err)
 	c.JSON(500, gin.H{"error": gin.H{
-		"message": "Unknown error",
+		"message": err,
 		"type":    "internal_server_error",
 		"param":   nil,
 		"code":    "500",

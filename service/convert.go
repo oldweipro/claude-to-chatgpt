@@ -24,5 +24,7 @@ func OpenaiToClaudeParams(chatCompletionRequest model.ChatCompletionRequest) *mo
 		}
 		historyMessage = string(historyMarshal)
 	}
+	//textMessage = "附件中存放着对话的上下文，作答时请忽略上下文的json格式，请以最新的prompt作答：" + textMessage
+	textMessage = "The attachment contains the context of the conversation. When answering, please ignore the json format of the context. Please answer with the latest prompt: " + textMessage
 	return model.NewChatMessageRequest(textMessage, historyMessage)
 }
