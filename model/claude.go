@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type ChatMessageRequest struct {
 	Completion       *Completion   `json:"completion"`
 	OrganizationUuid string        `json:"organization_uuid"`
@@ -84,15 +86,24 @@ type ChatConversationResponse struct {
 }
 
 type OrganizationsResponse struct {
-	Uuid         string   `json:"uuid"`
-	Name         string   `json:"name"`
-	Settings     Settings `json:"settings"`
-	Capabilities []string `json:"capabilities"`
-	JoinToken    string   `json:"join_token"`
-	CreatedAt    string   `json:"created_at"`
-	UpdatedAt    string   `json:"updated_at"`
-	ActiveFlags  []string `json:"active_flags"`
+	Uuid         string       `json:"uuid"`
+	Name         string       `json:"name"`
+	Settings     Settings     `json:"settings"`
+	Capabilities []string     `json:"capabilities"`
+	JoinToken    string       `json:"join_token"`
+	CreatedAt    string       `json:"created_at"`
+	UpdatedAt    string       `json:"updated_at"`
+	ActiveFlags  []ActiveFlag `json:"active_flags"`
 }
+
+type ActiveFlag struct {
+	Id          string    `json:"id"`
+	Type        string    `json:"type"`
+	CreatedAt   time.Time `json:"created_at"`
+	DismissedAt time.Time `json:"dismissed_at"`
+	ExpiresAt   time.Time `json:"expires_at"`
+}
+
 type Settings struct {
 	ClaudeConsolePrivacy string `json:"claude_console_privacy"`
 }
