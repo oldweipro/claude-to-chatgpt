@@ -53,7 +53,7 @@ func NewCompletion(prompt string) *Completion {
 	return &Completion{
 		Prompt:      prompt,
 		Timezone:    "Asia/Shanghai",
-		Model:       "claude-2",
+		Model:       "claude-2.1",
 		Incremental: true,
 	}
 }
